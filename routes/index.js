@@ -94,40 +94,6 @@ router.put("/update-marks", async (req, res) => {
     }
   });
 
-router.post("/regs/add", async (req, res) => {
-    console.log(`body >`, req.body);
-
-    let courseids = JSON.parse(req.body.courseids);
-    let regs = [];
-
-    for (let courseid of courseids) {
-        regs.push(new db.Registration({ courseid, regno: req.body.regno, gradeid: null }));
-    }
-
-    db.Registration.insertMany(regs).then(async response => {
-        if(response.length !== 0){
-            const[regs, grades] = await getStudentRegs(req.body.regno);
-            res.status(200).json(regs);
-        }
-    })
-
-});
-
-const getStudentRegs = async (regno) => {
-    const response = await Promise.all([
-        db.Registration.aggregate([
-            { $match: { regno: regno } },
-            { $lookup: { from: 'courses', localField: 'courseid', foreignField: 'courseid', as: 'course' } }, { $unwind: '$course' },
-            { $lookup: { from: 'grades', localField: 'gradeid', foreignField: 'gradeid', as: 'grade' } }, 
-                { $unwind: 
-                    { path: '$grade', preserveNullAndEmptyArrays: true } 
-                },
-        ]),
-        db.Grade.find().sort({ gradeid: 1 })
-    ]);
-
-    return response;
-}
 
 
 export default router;

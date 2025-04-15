@@ -14,7 +14,7 @@ export type StudentWithMarks={
 export type StudentProps = {
     getStudent: (regno: string) => Promise<void>;
   // The student prop can be null if no student details have been fetched yet.
-  student: StudentWithMarks | null;
+  student: StudentWithMarks[] | null;
 
 }
 

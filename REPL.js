@@ -5,10 +5,10 @@ import { db } from "./models/index.js";
 // .then(() => process.exit());
 
 
-db.Student.find()
-.populate('marks')
-.then(res => console.log(JSON.stringify(res, null, 4)))
-.then(() => process.exit());
+// db.Student.find()
+// .populate('marks')
+// .then(res => console.log(JSON.stringify(res, null, 4)))
+// .then(() => process.exit());
 
 // db.Mark.find()
 // .populate('student')

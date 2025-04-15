@@ -3,16 +3,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api/api';
 import { StudentWithMarks } from './types';
+import Student from "./student"
 
 export const StudentList = () => {
   // State for the list of all students.
   const [students, setStudents] = useState<StudentWithMarks[]>([]);
   // State for the student fetched by registration number.
   const [selectedStudent, setSelectedStudent] = useState<StudentWithMarks | null>(null);
-
-  const [semNo, setSemNo] = useState<number>(0);
-
-  const [courseids, setCourseIds] = useState<number[]>([]);
 
 
 
@@ -40,14 +37,16 @@ export const StudentList = () => {
   }, []);  
 
   return (
+    <>
     <div>
       <h2>Student Detail Lookup</h2>
       {/* Pass the fetch function and the selected student to the Student component */}
       <div>&nbsp;</div>
     
       <h2>Students List</h2>
+      <h2>Upon clicking Student name, it opens table at bottom</h2>
       
-      <table> 
+      <table > 
         <thead>
           <tr>
             <th>Name</th>
@@ -69,7 +68,10 @@ export const StudentList = () => {
           {students.length > 0 ? (
             students.map((s) => (
               <tr key={s._id}>
-                <td>{s.name}</td> 
+                <td
+                style={{cursor: 'pointer',hover: {color: 'blue'}}}
+                onClick={() => setSelectedStudent(s)}>
+                  {s.name}</td> 
                 <td>{s._id}</td>
                 <td>{s.marksByHead.find(m => m.headid === 1)?.marks || 0}</td>
                 <td>{s.marksByHead.find(m => m.headid === 2)?.marks || 0}</td>
@@ -91,6 +93,20 @@ export const StudentList = () => {
         </tbody>
       </table>
     </div>
+    <div
+          style={{
+            width: '300px',
+            borderLeft: '1px solid #ccc',
+            padding: '1rem',
+            background: '#f9f9f9'
+          }}
+        >
+          <Student
+            student={selectedStudent}
+            onClose={() => setSelectedStudent(null)}
+          />
+        </div>
+          </>
   );
 };
 

@@ -119,5 +119,69 @@ router.get("/students-with-marks", async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve students" });
   }
 });
+router.put("/update-marks", async (req, res) => {
+    try {
+      const { regno, headid, newMarks } = req.body;
+  
+      console.log("Incoming PUT request:", { regno, headid, newMarks });
+  
+      if (!regno || headid === undefined || newMarks === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+  
+      const updatedMark = await db.Mark.findOneAndUpdate(
+        { regno: regno, hid: headid },
+        { $set: { marks: newMarks } },
+        { new: true }
+      );
+  
+      if (!updatedMark) {
+        console.log("Mark record not found");
+        return res.status(404).json({ error: "Mark record not found" });
+      }
+  
+      console.log("Updated mark:", updatedMark);
+      res.status(200).json({ message: "Marks updated successfully", updatedMark });
+    } catch (error) {
+      console.error("Error updating marks:", error);  // Full error details
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+router.post("/regs/add", async (req, res) => {
+    console.log(`body >`, req.body);
+
+    let courseids = JSON.parse(req.body.courseids);
+    let regs = [];
+
+    for (let courseid of courseids) {
+        regs.push(new db.Registration({ courseid, regno: req.body.regno, gradeid: null }));
+    }
+
+    db.Registration.insertMany(regs).then(async response => {
+        if(response.length !== 0){
+            const[regs, grades] = await getStudentRegs(req.body.regno);
+            res.status(200).json(regs);
+        }
+    })
+
+});
+
+const getStudentRegs = async (regno) => {
+    const response = await Promise.all([
+        db.Registration.aggregate([
+            { $match: { regno: regno } },
+            { $lookup: { from: 'courses', localField: 'courseid', foreignField: 'courseid', as: 'course' } }, { $unwind: '$course' },
+            { $lookup: { from: 'grades', localField: 'gradeid', foreignField: 'gradeid', as: 'grade' } }, 
+                { $unwind: 
+                    { path: '$grade', preserveNullAndEmptyArrays: true } 
+                },
+        ]),
+        db.Grade.find().sort({ gradeid: 1 })
+    ]);
+
+    return response;
+}
+
 
 export default router;

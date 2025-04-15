@@ -11,31 +11,9 @@ export type StudentWithMarks={
     marks: Mark[]; // Result of $lookup
 }
 
-export type StudentProps = {
-    getStudent: (regno: string) => Promise<void>;
-  // The student prop can be null if no student details have been fetched yet.
-  student: StudentWithMarks[] | null;
 
+export interface StudentProps {
+  student: StudentWithMarks | null;
+  onClose: () => void;
+  refreshStudents: () => void; // <- new prop
 }
-
-export type SemesterProps = {
-    getSemNo: (semNo: number) => void
-}
-export type Course = {
-    courseid: number,
-    code: string,
-    title: string,
-    crhr: number,
-    semester: number
-  }
-  
-  export type SemetserCoursesProps = {
-      semno: number
-      getCourseIds: (args: {
-        name: string;
-        value: number;
-        crsIds: number[];
-    }) => void,
-    cids: number[],
-    addRegs: () => void
-  }

@@ -104,6 +104,7 @@ export const StudentList = () => {
           <Student
             student={selectedStudent}
             onClose={() => setSelectedStudent(null)}
+            refreshStudents={getStudents}
           />
         </div>
           </>

@@ -66,29 +66,7 @@ router.get("/students-with-marks", async (req, res) => {
     }    
 });
 
-router.get("/students/:regno", async (req, res) => {
-    try {
 
-        const students = await db.Student.findOne({regno: req.params.regno})
-            .populate("marks"); // Populate the marks field with the actual Mark documents
-        res.status(200).json(students);
-    }
-    catch(error) {
-        res.status(500).json({ error: "Failed to retrieve students" });
-    }
-
-});
-
-router.get("/semesters", async (req, res) => {
-    const semesters = await db.Course.distinct("semester");
-    res.status(200).json(semesters)
-});
-
-router.get("/courses/:semno", async (req, res) => {
-    const { semno } = req.params
-    const course = await db.Course.find({ semester: semno }).sort({ courseid: 1 });
-    res.status(200).json(course)
-})
 
 router.post("/regs/add", async (req, res) => {
     console.log(`body >`, req.body);

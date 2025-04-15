@@ -20,6 +20,7 @@ export const StudentList = () => {
   const getStudents = async () => {
     try {
       const response = await api.get('/api/students-with-marks');
+      console.log('Response:', response);
       const data = response.data;
       console.log('Fetched students list:', data);
         // Set the students state with the fetched data. 
@@ -28,9 +29,7 @@ export const StudentList = () => {
       console.error('Error fetching student list:', error);
     }
   };
-  const getSemNo = (semNo: number) => {
-    setSemNo(semNo);
-};
+
 
 
 
@@ -51,25 +50,38 @@ export const StudentList = () => {
       <table> 
         <thead>
           <tr>
-            <th>Reg. No.</th>
             <th>Name</th>
-            <th>Marks</th>
+            <th>Reg. No.</th>
+            <th>Quiz 1</th>
+            <th>Quiz 2</th>
+            <th>Assig. 1</th>
+            <th>Assig. 2</th>
+            <th>Final 1</th>
+            <th>Mid Term 1</th>
+            <th>Project 1</th>
+            <th>CP 1</th>
+            <th>Total</th>
+            <th>Percent</th>
+            <th>Grade</th>
           </tr>
         </thead>
         <tbody>
           {students.length > 0 ? (
             students.map((s) => (
               <tr key={s._id}>
-                <td>{s.regno}</td>
-                <td>{s.name}</td>
-                <td>
-                  {s.marks && s.marks.length > 0 ? (
-                    s.marks.map((mark) => mark.marks).join(', ')
-                  ) : (
-                    'No marks'
-                  )}
-                </td>
-              </tr>
+                <td>{s.name}</td> 
+                <td>{s._id}</td>
+                <td>{s.marksByHead.find(m => m.headid === 1)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 2)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 3)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 4)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 5)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 6)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 7)?.marks || 0}</td>
+                <td>{s.marksByHead.find(m => m.headid === 8)?.marks || 0}</td>
+                <td>{s.totalMarks}</td>
+                <td>{Math.round(s.totalMarks)}%</td>
+                </tr>
             ))
           ) : (
             <tr>

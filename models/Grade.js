@@ -8,4 +8,5 @@ const gradeSchema = new Schema({
 	gpa: Number
 })
 
-export const Grade = model('Grade', gradeSchema);
+
+export const Grade = mongoose.model('Grade', gradeSchema);

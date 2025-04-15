@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { StudentProps } from './types';
-
-export default function Student({ getStudent, student }: StudentProps) {
-  // Local state to store the marks (keyed by headid).
+  
+export default function Student({ refreshStudents, student }: StudentProps) {
   const [localMarks, setLocalMarks] = useState<Record<number, number>>({});
-  // Local state to store error messages (keyed by headid).
   const [errors, setErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (student) {
-
-        const marksMap: Record<number, number> = {};
+      const marksMap: Record<number, number> = {};
       student.marksByHead.forEach(item => {
         marksMap[item.headid] = item.marks;
       });
       setLocalMarks(marksMap);
-
       setErrors({});
+;
+
     }
   }, [student]);
 
-
-  const handleMarkChange = (headid: number, newValue: string) => {
+  const handleMarkChange = async (headid: number, newValue: number) => {
+    console.log("start1:headid:  ", headid, "newValue: ", newValue);
     const value = parseFloat(newValue) || 0;
     let errorMessage = '';
 
@@ -40,11 +38,39 @@ export default function Student({ getStudent, student }: StudentProps) {
       ...prev,
       [headid]: value,
     }));
+
+    // Send the updated marks to the backend API
+    if (!errorMessage) {
+      try {
+        const response = await fetch('http://localhost:4000/api/update-marks', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            regno: student._id,  // Student registration number
+            headid: headid,        // Subject ID (head)
+            newMarks: value,       // New marks
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update marks');
+        }
+
+        const result = await response.json();
+        console.log('Marks updated successfully:', result);
+        refreshStudents();
+      } catch (error) {
+        console.error('Error updating marks:', error);
+      }
+    }
   };
 
   if (!student) {
     return <p>No student selected</p>;
   }
+
 
   return (
     <>
@@ -151,7 +177,6 @@ export default function Student({ getStudent, student }: StudentProps) {
           </tr>
         </tbody>
       </table>
-
 
       {errors[1] && (
         <p style={{ color: 'red', margin: '4px 0 0 0', fontSize: '0.9em' }}>

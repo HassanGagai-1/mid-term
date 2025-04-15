@@ -65,8 +65,34 @@ router.get("/students-with-marks", async (req, res) => {
         res.status(500).json({ error: "Failed to retrieve students" });
     }    
 });
-
-
+router.put("/update-marks", async (req, res) => {
+    try {
+      const { regno, headid, newMarks } = req.body;
+  
+      console.log("Incoming PUT request:", { regno, headid, newMarks });
+  
+      if (!regno || headid === undefined || newMarks === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+  
+      const updatedMark = await db.Mark.findOneAndUpdate(
+        { regno: regno, hid: headid },
+        { $set: { marks: newMarks } },
+        { new: true }
+      );
+  
+      if (!updatedMark) {
+        console.log("Mark record not found");
+        return res.status(404).json({ error: "Mark record not found" });
+      }
+  
+      console.log("Updated mark:", updatedMark);
+      res.status(200).json({ message: "Marks updated successfully", updatedMark });
+    } catch (error) {
+      console.error("Error updating marks:", error);  // Full error details
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
 router.post("/regs/add", async (req, res) => {
     console.log(`body >`, req.body);

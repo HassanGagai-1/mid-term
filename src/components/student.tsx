@@ -173,7 +173,7 @@ export default function Student({ refreshStudents, student }: StudentProps) {
             </td>
             <td>{student.totalMarks}</td>
             <td>{Math.round(student.totalMarks)}%</td>
-            <td>{/* Grade (optional) */}</td>
+            <td>{student.grade} </td>
           </tr>
         </tbody>
       </table>

@@ -11,7 +11,14 @@ export type StudentWithMarks={
     marks: Mark[]; // Result of $lookup
 }
 
-
+export type Grade= {
+    _id: string;
+    gradeid : number,
+    start : number,
+    end : number,
+    grade : string,
+    gpa: number
+}
 export interface StudentProps {
   student: StudentWithMarks | null;
   onClose: () => void;

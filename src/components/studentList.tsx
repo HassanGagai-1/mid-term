@@ -2,38 +2,64 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '../../api/api';
-import { StudentWithMarks } from './types';
+import { StudentWithMarks, Grade } from './types';
 import Student from "./student"
 
 export const StudentList = () => {
-  // State for the list of all students.
+
   const [students, setStudents] = useState<StudentWithMarks[]>([]);
-  // State for the student fetched by registration number.
+
   const [selectedStudent, setSelectedStudent] = useState<StudentWithMarks | null>(null);
 
+  const [grades, setGrades] = useState<Grade[]>([]);
 
+  const maxTotal = 100;
 
-  // Fetch the full list of students on mount.
   const getStudents = async () => {
     try {
       const response = await api.get('/api/students-with-marks');
       console.log('Response:', response);
       const data = response.data;
       console.log('Fetched students list:', data);
-        // Set the students state with the fetched data. 
       setStudents(data);
     } catch (error) {
       console.error('Error fetching student list:', error);
     }
   };
 
+const getGrades = async () => {
+  try{
+    const response = await api.get('/api/get-grades');
+    console.log('Response:', response);
+    const data: Grade[] = response.data;
+    console.log("data: ",data);
+    setGrades(data);
+  } catch (error) {
+    console.error('Error fetching grades:', error);
+  }
+};
 
-
+function calculateGrade(gradesData: Grade[], percentage: number): Grade {
+  // Create a copy and sort descending by start value.
+  const sortedGrades = [...gradesData].sort((a, b) => b.start - a.start);
+  // Find the first grade where percentage fits in between start and end.
+  const matchedGrade = sortedGrades.find(
+    (grade) => percentage >= grade.start && percentage <= grade.end
+  );
+  return matchedGrade || { gradeid: 0, grade: "Invalid"};
+}
+const computedStudents = students.map(student => {
+  const percentage = (student.totalMarks / maxTotal) * 100;
+  const roundedPercentage = Math.round(percentage);
+  const computedGrade = calculateGrade(grades, roundedPercentage);
+  return { ...student, percentage: roundedPercentage, grade: computedGrade.grade };
+});
 
 
 
   useEffect(() => {
     getStudents();
+    getGrades();
   }, []);  
 
   return (
@@ -46,7 +72,7 @@ export const StudentList = () => {
       <h2>Students List</h2>
       <h2>Upon clicking Student name, it opens table at bottom</h2>
       
-      <table > 
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}> 
         <thead>
           <tr>
             <th>Name</th>
@@ -65,8 +91,8 @@ export const StudentList = () => {
           </tr>
         </thead>
         <tbody>
-          {students.length > 0 ? (
-            students.map((s) => (
+          {computedStudents.length > 0 ? (
+            computedStudents.map((s) => (
               <tr key={s._id}>
                 <td
                 style={{cursor: 'pointer',hover: {color: 'blue'}}}
@@ -82,7 +108,8 @@ export const StudentList = () => {
                 <td>{s.marksByHead.find(m => m.headid === 7)?.marks || 0}</td>
                 <td>{s.marksByHead.find(m => m.headid === 8)?.marks || 0}</td>
                 <td>{s.totalMarks}</td>
-                <td>{Math.round(s.totalMarks)}%</td>
+                <td>{s.percentage}%</td>
+                  <td>{s.grade}</td>
                 </tr>
             ))
           ) : (

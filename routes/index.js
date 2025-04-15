@@ -4,19 +4,7 @@ import { db } from "../models/index.js";
 
 const router = express.Router();
 
-// Grade calculation function
-async function calculateGrade(percentage) {
-  try {
-    const grades = await Grade.find().sort({ start: -1 });
-    const matchedGrade = grades.find(
-      (grade) => percentage >= grade.start && percentage <= grade.end
-    );
-    return matchedGrade || { gradeid: 0, grade: "Invalid", gpa: 0 };
-  } catch (err) {
-    console.error("Error calculating grade:", err);
-    throw new Error("Error calculating grade");
-  }
-}
+
 
 router.get("/students-with-marks", async (req, res) => {
     try {
@@ -65,7 +53,8 @@ router.get("/students-with-marks", async (req, res) => {
                         headid: "$marks.hid",
                         headname: "$headDetails.headname",
                         marks: "$marks.marks"
-                      }
+                      },
+                      
                     }
                   }
                 },
@@ -74,10 +63,21 @@ router.get("/students-with-marks", async (req, res) => {
                   $sort: { _id: 1 }
                 }
         ]);
+            
             res.status(200).json(students);
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve students" });
     }    
+});
+
+router.get("/get-grades", async (req,res) => {
+    try {
+        const grades = await db.Grade.find();
+        res.status(200).json(grades);
+    } catch (error) {
+        console.error("Error fetching grades:", error);
+        res.status(500).json({ error: "Failed to fetch grades" });
+    }
 });
 
 router.put("/update-marks", async (req, res) => {
